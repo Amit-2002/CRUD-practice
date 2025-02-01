@@ -3,7 +3,8 @@ import { deletePost, getPosts } from "../api/PostApi"
 import { From } from "./Form"
 
 export const Posts = () => {
-    const [data, setData] = useState()
+    const [data, setData] = useState();
+    const [updatePost, setUpdatePost] = useState({});
 
     const getPostsData = async () => {
         const response = await getPosts();
@@ -17,6 +18,8 @@ export const Posts = () => {
     }, [])
 
     // useEffect(()=>{console.log(data)},[data]) to check how data is deletting
+
+
 
     // function to delete post
     const handleDeletePost = async (id) => {
@@ -41,11 +44,20 @@ export const Posts = () => {
     }
 
 
+
+    // function to update post
+    function handleUpdatePost(curEle){
+        setUpdatePost(curEle);
+    }
+
     if(data){
         return (
             <>
                 <section>
-                    <From data={data} setData={setData}/>
+                    <From data={data} setData={setData}
+                    updatePost={updatePost}
+                    setUpdatePost={setUpdatePost}
+                    />
                 </section>
 
                 <h1>Posts</h1>
@@ -58,7 +70,10 @@ export const Posts = () => {
                                     <h4>{id}</h4>
                                     <p>{title}</p>
                                     <p>{body}</p>
-                                    <button>Edit</button>
+                                    <button
+                                    onClick={() => handleUpdatePost(cur)}
+                                    >Edit</button>
+
                                     <button onClick={() => {
                                         handleDeletePost(id)
                                     }}

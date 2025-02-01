@@ -1,11 +1,21 @@
-import { useState } from "react"
-import { post } from "../api/PostApi";
+import { useEffect, useState } from "react"
+import { post, updateData } from "../api/PostApi";
 
-export const From = ({data, setData}) => {
+export const From = ({data, setData, updatePost, setUpdatePost}) => {
     const [addData, setAddData] = useState({
         title: '',
         body: ''
     })
+
+    let isEmpty = Object.keys(updatePost).length === 0;
+
+
+    useEffect(()=>{
+        updatePost && setAddData({
+            title: updatePost.title || '',
+            body: updatePost.body || ''
+        })
+    },[updatePost])
 
 
     const handleInputChange = (e) => {
@@ -31,9 +41,38 @@ export const From = ({data, setData}) => {
         }
     }
 
+    // function to update post
+    const updatePostData = async () => {
+       try {
+        const response = await updateData(updatePost.id, addData);
+        console.log(response);
+
+        if(response.status === 200){
+            setData((prev) => {
+                return prev.map((curEle) => {
+                    return curEle.id === response.data.id ? response.data : curEle;
+                })
+            })
+            setAddData({title: "", body: ""});
+            setUpdatePost({});
+        }
+       } 
+       catch (error) {
+        console.log(error);
+       }
+    }
+
+
     const handleSubmit = (e) => {
         e.preventDefault(); 
-        addPost();
+        const action = e.nativeEvent.submitter.value;
+
+        if(action === 'Add'){
+            addPost();
+        }
+        else if(action === 'Edit'){
+            updatePostData();
+        }   
     }
 
     return(
@@ -57,7 +96,9 @@ export const From = ({data, setData}) => {
                 onChange={handleInputChange}
                 />
 
-                <button type="submit">Submit</button>
+                <button type="submit" value={isEmpty ? 'Add' : 'Edit'}>
+                    {isEmpty ? "Add" : "Edit"}
+                </button>
             </form>
         </>
     )
